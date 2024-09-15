@@ -1,0 +1,12 @@
+METHOD CreateForm( lCreate ) CLASS TForm1
+
+   IF lCreate
+      ::SetBounds( 1738, 555, 450, 300 )
+      ::SetClientSize( 434, 261 )
+      ::cText := "Form1"
+      ::oFont := TFont():Create( "MS Sans Serif", 8, 0, 400 )
+      ::Create()
+   ENDIF
+   ::Super:CreateForm( .F. )
+
+RETURN Self

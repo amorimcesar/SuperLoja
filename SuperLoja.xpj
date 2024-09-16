@@ -67,6 +67,9 @@
       <File Filename="SuperLoja.prg"/>
       <File Filename="Imagens.rc"/>
       <File Filename="FrmPrincipal.prg"/>
+      <File Filename="FrmProduto.prg"/>
+      <File Filename="Funcoes_LOG.prg"/>
+      <File Filename="Funcoes_SQL.prg"/>
    </Files>
    <Libraries>
       <Library Filename="[xailer]xailer"/>

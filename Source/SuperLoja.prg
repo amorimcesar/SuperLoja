@@ -4,7 +4,7 @@ Procedure Main()
 
    Application:cTitle := "SuperLoja"
    Application:oIcon := "loja"
-   TForm1():New( Application ):Show()
+   TFrmPrincipal():New( Application ):Show()
    Application:Run()
 
 Return

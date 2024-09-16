@@ -1,12 +1,135 @@
-METHOD CreateForm( lCreate ) CLASS TForm1
+METHOD CreateForm( lCreate ) CLASS TFrmPrincipal
 
    IF lCreate
-      ::SetBounds( 1738, 555, 450, 300 )
-      ::SetClientSize( 434, 261 )
-      ::cText := "Form1"
+      ::SetBounds( 1135, 317, 990, 574 )
+      ::SetClientSize( 974, 535 )
+      ::cText := "FrmPrincipal"
       ::oFont := TFont():Create( "MS Sans Serif", 8, 0, 400 )
+      ::lParentIcon := .F.
+      ::oIcon := "loja"
+      ::nShowMode := smMAXIMIZE
+      ::OnInitialize := "FormInitialize"
       ::Create()
    ENDIF
    ::Super:CreateForm( .F. )
+
+   WITH OBJECT ::oMenuPrincipal := TMenu():New( Self )
+      :Create()
+      WITH OBJECT :AddItem( "Cadastros" )
+         WITH OBJECT :AddMenu()
+            :AddItem( "Produtos" ):OnClick := "MenuPrincipalProdutosClick"
+         END
+      END
+      :SetMenu() 
+   END
+
+   WITH OBJECT ::oMySQL := TMySQLDatasource():New( Self )
+      :lAbortOnErrors := .T.
+      :lDisplayErrors := .F.
+      :cHost := "localhost"
+      :nPort := 25178
+      :cUser := "root"
+      :cPassword := "pxoxrxtxoxpxdxvxpxoxrxtxoxsxoxfxt"
+      :cDatabase := "super_loja"
+      :lConnected := .T.
+      :Create()
+   END
+
+   WITH OBJECT ::oSQLQueryProdutos := TSQLQuery():New( Self )
+      :oDataSource := ::oMySQL
+      :cProcess := "GENERAL"
+      :OnCreate := "SQLQueryProdutosCreate"
+      :Create()
+   END
+
+   WITH OBJECT ::oPages := TPages():New( Self )
+      :SetBounds( 0, 0, 974, 515 )
+      :nAlign := alCLIENT
+      :oBkgnd := "fundo"
+      :nBkgndMode := blSTRETCHSMOOTH
+      :nIndex := 1
+      WITH OBJECT ::oPageProdutos := TPage():New( ::oPages )
+         :lTransparent := .F.
+         :Create()
+      END
+
+      :Create()
+   END
+
+         WITH OBJECT ::oExplorerBarProdutos := TExplorerBar():New( ::oPageProdutos )
+            :SetBounds( 0, 0, 200, 515 )
+            :AddItem( "Opçõs" )
+            :Create()
+         END
+
+            WITH OBJECT ::oOptionListProdutos := TOptionList():New( ::oExplorerBarProdutos )
+               :SetBounds( 11, 36, 178, 166 )
+               WITH OBJECT :oImageList
+                  :nWidth := 24
+                  :nHeight := 24
+                  :Add( "incluir" )
+                  :Add( "alterar" )
+                  :Add( "excluir" )
+                  :Add( "filtrar" )
+                  :Add( "fechar" )
+               END
+               WITH OBJECT :AddItem( "Novo produto", 1 )
+                  :OnClick := "OptionNovoProdutoClick"
+               END
+               WITH OBJECT :AddItem( "Alterar produto", 2 )
+                  :OnClick := "OptionAlterarProdutoClick"
+               END
+               WITH OBJECT :AddItem( "Excluir produto", 3 )
+                  :OnClick := "OptionExcluirProdutoClick"
+               END
+               :AddSeparator()
+               WITH OBJECT :AddItem( "Ativar Filtro", 4 )
+                  :OnClick := "OptionFiltrarProdutoClick"
+               END
+               :AddSeparator()
+               WITH OBJECT :AddItem( "Fechar", 5 )
+                  :OnClick := "OptionFecharClick"
+               END
+               :Create()
+            END
+
+         WITH OBJECT ::oBrowseProdutos := TDBBrowse():New( ::oPageProdutos )
+            :SetBounds( 200, 0, 774, 515 )
+            :nAlign := alCLIENT
+            WITH OBJECT TDBBrwColumn():New( ::oBrowseProdutos )
+               :cHeader := "Código"
+               :nAlignment := taRIGHTHEADERCENTER
+               :nWidth := 83
+               :oDataField := "id"
+               :Create()
+            END
+
+            WITH OBJECT TDBBrwColumn():New( ::oBrowseProdutos )
+               :cHeader := "Nome"
+               :nAlignment := taLEFTHEADERCENTER
+               :nWidth := 561
+               :oDataField := "nome"
+               :Create()
+            END
+
+            WITH OBJECT TDBBrwColumn():New( ::oBrowseProdutos )
+               :lCanFilter := .F.
+               :cHeader := "Estoque"
+               :cPicture := "@E 999,999.999"
+               :nAlignment := taRIGHTHEADERCENTER
+               :nWidth := 101
+               :oDataField := "estoque"
+               :Create()
+            END
+
+            TBrwRecSel():Create( ::oBrowseProdutos )
+
+            :lAllowEdit := .F.
+            :cMsgNoFilter := "Essa coluna não pode ser filtrada"
+            :oDataSet := ::oSQLQueryProdutos
+            :OnDblClick := "BrowseProdutosDblClick"
+            :OnKeyDown := "BrowseProdutosKeyDown"
+            :Create()
+         END
 
 RETURN Self

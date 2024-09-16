@@ -5,15 +5,20 @@ CLASS TFrmPrincipal FROM TForm
    COMPONENT oMenuPrincipal
 
    COMPONENT oPages
+
    COMPONENT oPageProdutos
    COMPONENT oExplorerBarProdutos
    COMPONENT oOptionListProdutos
    COMPONENT oBrowseProdutos
    COMPONENT oSQLQueryProdutos
 
+   COMPONENT oPageClientes
+   COMPONENT oExplorerBarClientes
+   COMPONENT oOptionListClientes
+   COMPONENT oBrowseClientes
+   COMPONENT oSQLQueryClientes
+
    COMPONENT oMySQL
-   COMPONENT oOptionListProdutosItem5
-   COMPONENT oBrowseProdutosColumn3
 
    METHOD CreateForm()
    METHOD FormInitialize( oSender )
@@ -26,8 +31,14 @@ CLASS TFrmPrincipal FROM TForm
    METHOD OptionExcluirProdutoClick( oSender )
    METHOD BrowseProdutosKeyDown( oSender, nKey, nFlags )
    METHOD OptionFiltrarProdutoClick( oSender )
-   METHOD OptionExcluirProdutoClick( oSender )
-   METHOD OptionFiltrarProdutoClick( oSender )
+   METHOD MenuPrincipalClientesClick( oSender, oMenu )
+   METHOD SQLQueryClientesCreate( oSender )
+   METHOD OptionNovoClienteClick( oSender )
+   METHOD OptionAlterarClienteClick( oSender )
+   METHOD OptionExcluirClienteClick( oSender )
+   METHOD FormKeyDown( oSender, nKey, nFlags )
+   METHOD OptionFiltrarClienteClick( oSender )
+   METHOD BrowseClientesDblClick( oSender, nKeys, nCol, nRow )
 
 ENDCLASS
 
@@ -137,14 +148,6 @@ RETURN Nil
 
 //------------------------------------------------------------------------------
 
-METHOD OptionFecharClick( oSender ) CLASS TFrmPrincipal
-
-   ::oPages:nIndex:=0
-
-RETURN Nil
-
-//------------------------------------------------------------------------------
-
 METHOD BrowseProdutosDblClick( oSender, nKeys, nCol, nRow ) CLASS TFrmPrincipal
 
    ::OptionAlterarProdutoClick()
@@ -162,6 +165,125 @@ METHOD BrowseProdutosKeyDown( oSender, nKey, nFlags ) CLASS TFrmPrincipal
     elseif nKey==VK_DELETE
       ::OptionExcluirProdutoClick()
    endif
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
+
+METHOD MenuPrincipalClientesClick( oSender, oMenu ) CLASS TFrmPrincipal
+
+   ::oPages:nIndex:=2
+   ::oBrowseClientes:SetFocus()
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
+
+METHOD SQLQueryClientesCreate( oSender ) CLASS TFrmPrincipal
+
+  ::oSQLQueryClientes:lOpen  :=.F.
+  ::oSQLQueryClientes:cSelect:='SELECT id, nome FROM clientes ORDER BY nome'
+  ::oSQLQueryClientes:lOpen  :=.T.
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
+
+METHOD OptionNovoClienteClick( oSender ) CLASS TFrmPrincipal
+
+   with object TFrmCliente()
+      :New()
+      :cText:='Novo cliente'
+      ::oSQLQueryClientes:AddNew()
+      :ShowModal()
+   end
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
+
+METHOD OptionAlterarClienteClick( oSender ) CLASS TFrmPrincipal
+
+   if ::oSQLQueryClientes:RecCount()==0
+      MessageBox(,"Não há cliente para alterar", "Atenção", MB_ICONWARNING)
+      RETURN Nil
+   endif
+
+   with object TFrmCliente()
+     :New()
+     :cText:='Alterar cliente'
+     ::oSQLQueryClientes:Edit()
+     :ShowModal()
+   end
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
+
+METHOD OptionExcluirClienteClick( oSender ) CLASS TFrmPrincipal
+
+   LOCAL oErro
+
+   if ::oSQLQueryClientes:RecCount()==0
+      MessageBox(,"Não há cliente para excluir", "Atenção", MB_ICONWARNING)
+      RETURN Nil
+   endif
+
+   if MessageBox(, "Deseja realmente excluir o cliente?","Atenção", MB_YESNO+MB_ICONWARNING)==IDNO
+      RETURN Nil
+   endif
+
+   try
+      ::oSQLQueryClientes:Delete()
+    catch oErro
+      ::oSQLQueryClientes:Cancel()
+      Grava_Log_Erro(oErro)
+      MessageBox(,"Ocorreu um erro ao excluir o cliente.","Erro", MB_ICONERROR)
+   end
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
+
+METHOD FormKeyDown( oSender, nKey, nFlags ) CLASS TFrmPrincipal
+
+   if nKey==VK_INSERT
+      ::OptionNovoClienteClick()
+    elseif nKey==VK_RETURN
+      ::OptionAlterarClienteClick()
+    elseif nKey==VK_DELETE
+      ::OptionExcluirClienteClick()
+   endif
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
+
+METHOD BrowseClientesDblClick( oSender, nKeys, nCol, nRow ) CLASS TFrmPrincipal
+
+   ::OptionAlterarClienteClick()
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
+
+METHOD OptionFiltrarClienteClick( oSender ) CLASS TFrmPrincipal
+
+   if ::oBrowseClientes:lFilterBar
+      ::oBrowseClientes:lFilterBar:=.F.
+      oSender:cText:="Ativar filtro"
+    else
+      ::oBrowseClientes:lFilterBar:=.T.
+      oSender:cText:="Desativar filtro"
+   endif
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
+
+METHOD OptionFecharClick( oSender ) CLASS TFrmPrincipal
+
+   ::oPages:nIndex:=0
 
 RETURN Nil
 

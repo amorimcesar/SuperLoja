@@ -70,6 +70,7 @@
       <File Filename="FrmProduto.prg"/>
       <File Filename="Funcoes_LOG.prg"/>
       <File Filename="Funcoes_SQL.prg"/>
+      <File Filename="FrmCliente.prg"/>
    </Files>
    <Libraries>
       <Library Filename="[xailer]xailer"/>

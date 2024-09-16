@@ -1,14 +1,15 @@
 METHOD CreateForm( lCreate ) CLASS TFrmPrincipal
 
    IF lCreate
-      ::SetBounds( 1135, 317, 990, 574 )
-      ::SetClientSize( 974, 535 )
+      ::SetBounds( 255, 501, 990, 604 )
+      ::SetClientSize( 974, 565 )
       ::cText := "FrmPrincipal"
       ::oFont := TFont():Create( "MS Sans Serif", 8, 0, 400 )
       ::lParentIcon := .F.
       ::oIcon := "loja"
       ::nShowMode := smMAXIMIZE
       ::OnInitialize := "FormInitialize"
+      ::OnKeyDown := "FormKeyDown"
       ::Create()
    ENDIF
    ::Super:CreateForm( .F. )
@@ -18,6 +19,7 @@ METHOD CreateForm( lCreate ) CLASS TFrmPrincipal
       WITH OBJECT :AddItem( "Cadastros" )
          WITH OBJECT :AddMenu()
             :AddItem( "Produtos" ):OnClick := "MenuPrincipalProdutosClick"
+            :AddItem( "Clientes" ):OnClick := "MenuPrincipalClientesClick"
          END
       END
       :SetMenu() 
@@ -42,13 +44,25 @@ METHOD CreateForm( lCreate ) CLASS TFrmPrincipal
       :Create()
    END
 
+   WITH OBJECT ::oSQLQueryClientes := TSQLQuery():New( Self )
+      :oDataSource := ::oMySQL
+      :cProcess := "GENERAL"
+      :OnCreate := "SQLQueryClientesCreate"
+      :Create()
+   END
+
    WITH OBJECT ::oPages := TPages():New( Self )
-      :SetBounds( 0, 0, 974, 515 )
+      :SetBounds( 0, 0, 974, 545 )
       :nAlign := alCLIENT
       :oBkgnd := "fundo"
       :nBkgndMode := blSTRETCHSMOOTH
-      :nIndex := 1
+      :nIndex := 2
       WITH OBJECT ::oPageProdutos := TPage():New( ::oPages )
+         :lTransparent := .F.
+         :Create()
+      END
+
+      WITH OBJECT ::oPageClientes := TPage():New( ::oPages )
          :lTransparent := .F.
          :Create()
       END
@@ -58,7 +72,7 @@ METHOD CreateForm( lCreate ) CLASS TFrmPrincipal
 
          WITH OBJECT ::oExplorerBarProdutos := TExplorerBar():New( ::oPageProdutos )
             :SetBounds( 0, 0, 200, 515 )
-            :AddItem( "Opçõs" )
+            :AddItem( "Opções" )
             :Create()
          END
 
@@ -129,6 +143,70 @@ METHOD CreateForm( lCreate ) CLASS TFrmPrincipal
             :oDataSet := ::oSQLQueryProdutos
             :OnDblClick := "BrowseProdutosDblClick"
             :OnKeyDown := "BrowseProdutosKeyDown"
+            :Create()
+         END
+
+         WITH OBJECT ::oExplorerBarClientes := TExplorerBar():New( ::oPageClientes )
+            :SetBounds( 0, 0, 200, 545 )
+            :AddItem( "Opções" )
+            :Create()
+         END
+
+            WITH OBJECT ::oOptionListClientes := TOptionList():New( ::oExplorerBarClientes )
+               :SetBounds( 11, 36, 178, 178 )
+               WITH OBJECT :oImageList
+                  :nWidth := 24
+                  :nHeight := 24
+                  :Add( "incluir" )
+                  :Add( "alterar" )
+                  :Add( "excluir" )
+                  :Add( "filtrar" )
+                  :Add( "fechar" )
+               END
+               WITH OBJECT :AddItem( "Incluir cliente", 1 )
+                  :OnClick := "OptionNovoClienteClick"
+               END
+               WITH OBJECT :AddItem( "Alterar cliente", 2 )
+                  :OnClick := "OptionAlterarClienteClick"
+               END
+               WITH OBJECT :AddItem( "Excluir cliente", 3 )
+                  :OnClick := "OptionExcluirClienteClick"
+               END
+               :AddSeparator()
+               WITH OBJECT :AddItem( "Ativar filtro", 4 )
+                  :OnClick := "OptionFiltrarClienteClick"
+               END
+               :AddSeparator()
+               WITH OBJECT :AddItem( "Fechar", 5 )
+                  :OnClick := "OptionFecharClick"
+               END
+               :Create()
+            END
+
+         WITH OBJECT ::oBrowseClientes := TDBBrowse():New( ::oPageClientes )
+            :SetBounds( 200, 0, 774, 545 )
+            :nAlign := alCLIENT
+            WITH OBJECT TDBBrwColumn():New( ::oBrowseClientes )
+               :cHeader := "Código"
+               :nAlignment := taRIGHTHEADERCENTER
+               :nWidth := 67
+               :oDataField := "id"
+               :Create()
+            END
+
+            WITH OBJECT TDBBrwColumn():New( ::oBrowseClientes )
+               :cHeader := "Nome"
+               :nAlignment := taLEFTHEADERCENTER
+               :nWidth := 482
+               :oDataField := "nome"
+               :Create()
+            END
+
+            TBrwRecSel():Create( ::oBrowseClientes )
+
+            :lAllowEdit := .F.
+            :oDataSet := ::oSQLQueryClientes
+            :OnDblClick := "BrowseClientesDblClick"
             :Create()
          END
 

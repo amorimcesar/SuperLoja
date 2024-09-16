@@ -1,12 +1,13 @@
 METHOD CreateForm( lCreate ) CLASS TFrmProduto
 
    IF lCreate
-      ::SetBounds( 922, 485, 451, 167 )
+      ::SetBounds( 1054, 636, 451, 167 )
       ::SetClientSize( 435, 128 )
       ::cText := "Novo produto"
       ::oFont := TFont():Create( "MS Sans Serif", 8, 0, 400 )
       ::lParentIcon := .F.
       ::oIcon := "loja"
+      ::lCentered := .T.
       ::lMinimizeBox := .F.
       ::lMaximizeBox := .F.
       ::OnKeyDown := "FormKeyDown"

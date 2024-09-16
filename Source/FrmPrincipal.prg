@@ -77,6 +77,11 @@ RETURN Nil
 
 METHOD OptionAlterarProdutoClick( oSender ) CLASS TFrmPrincipal
 
+   if ::oSQLQueryProdutos:RecCount()==0
+      MessageBox(, "Não há produto para alterar", "Atenção", MB_ICONWARNING)
+      RETURN NIL
+   endif
+
    with object TFrmProduto()
       :cModo:='A'
       :New()
@@ -91,6 +96,11 @@ RETURN Nil
 METHOD OptionExcluirProdutoClick( oSender ) CLASS TFrmPrincipal
 
    LOCAL oErro
+
+   if ::oSQLQueryProdutos:RecCount()==0
+      MessageBox(, "Não há produto para excluir", "Atenção", MB_ICONWARNING)
+      RETURN NIL
+   endif
 
    if MessageBox(,"Deseja realmente excluir o produto?","Aten??o",MB_YESNO+MB_ICONWARNING)==IDNO
       RETURN Nil

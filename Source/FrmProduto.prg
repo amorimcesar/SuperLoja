@@ -17,6 +17,7 @@ CLASS TFrmProduto FROM TForm
    METHOD FormInitialize( oSender )
    METHOD FormKeyDown( oSender, nKey, nFlags )
    METHOD FormInitialize( oSender )
+   METHOD ValidaDados()
 
 ENDCLASS
 
@@ -51,6 +52,10 @@ METHOD BtnConfirmarClick( oSender ) CLASS TFrmProduto
 
    LOCAL cSQL:='', oErro
 
+   if!::ValidaDados()
+      RETURN NIL
+   endif
+
    try
       if ::cModo=='I'
          cSQL:=" INSERT INTO produtos (nome, estoque) VALUES ("
@@ -81,3 +86,11 @@ RETURN Nil
 
 //------------------------------------------------------------------------------
 
+METHOD ValidaDados() CLASS TFrmProduto
+
+   if Empty(::oEditNome:Value)
+      MessageBox(, "Informe o nome do produto.", "Atenção", MB_ICONWARNING )
+      RETURN.F.
+   endif
+
+RETURN .T.

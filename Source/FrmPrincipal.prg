@@ -76,6 +76,7 @@ RETURN Nil
 
 METHOD MenuPrincipalProdutosClick( oSender, oMenu ) CLASS TFrmPrincipal
 
+   ::oSQLQueryProdutos:Refresh()
    ::oPages:nIndex:=1
    ::oBrowseProdutos:SetFocus()
 
@@ -192,6 +193,7 @@ RETURN Nil
 
 METHOD MenuPrincipalClientesClick( oSender, oMenu ) CLASS TFrmPrincipal
 
+   ::oSQLQueryClientes:Refresh()
    ::oPages:nIndex:=2
    ::oBrowseClientes:SetFocus()
 
@@ -319,6 +321,7 @@ RETURN Nil
 //------------------------------------------------------------------------------
 METHOD MenuPrincipalPedidosClick( oSender, oMenu ) CLASS TFrmPrincipal
 
+   ::oSQLQueryPedidos:Refresh()
    ::oPages:nIndex:=3
    ::oBrowsePedidos:SetFocus()
 
@@ -368,7 +371,18 @@ METHOD OptionVisualizarPedidoClick( oSender ) CLASS TFrmPrincipal
       :oComboboxCliente:lEnabled:=.F.
 
       :oLabelCancelado:lVisible:=::oSQLQueryPedidos:cancelado
-      :oBtnConfirmar:lVisible  :=.F.
+
+      :oBtnConfirmar:lVisible      :=.F.
+      :oBtnNovoItem:lVisible       :=.F.
+      :oBtnAlterarItem:lVisible    :=.F.
+      :oBtnExcluirItem:lVisible    :=.F.
+
+      :oBrowseItens:lAllowAppend:=.F.
+      :oBrowseItens:lAllowInsert:=.F.
+      :oBrowseItens:lAllowEdit  :=.F.
+      :oBrowseItens:lAllowDelete:=.F.
+
+      :PreencheBrowseItens()
 
       :ShowModal()
    end
@@ -379,7 +393,7 @@ RETURN Nil
 
 METHOD OptionCancelarPedidoClick( oSender ) CLASS TFrmPrincipal
 
-   LOCAL oErro
+   LOCAL nPedidoID:=0, nProdutoID:=0, nQuantidade:=0, aItem:={}, aItens:={}, oErro
 
    if ::oSQLQueryPedidos:RecCount()==0
       MessageBox(,"Não há pedido para cancelar.","Atenção",MB_ICONWARNING)
@@ -396,10 +410,19 @@ METHOD OptionCancelarPedidoClick( oSender ) CLASS TFrmPrincipal
    endif
 
    try
-      ::oMySQL:BeginTrans()
-      ::oMySQL:Execute("UPDATE pedidos SET cancelado=1 WHERE id="+ValToSQL(::oSQLQueryPedidos:id))
-      ::oMySQL:CommitTrans()
+      nPedidoID:=::oSQLQueryPedidos:id
 
+      ::oMySQL:BeginTrans()
+      ::oMySQL:Execute("UPDATE pedidos SET cancelado=1 WHERE id="+ValToSQL(nPedidoID))
+      ::oMySQL:Execute("SELECT produto_id, quantidade FROM pedidos_itens WHERE pedido_id="+ValToSQL(nPedidoID),,@aItens)
+
+      for each aItem in aItens
+         nProdutoID :=aItem[1]
+         nQuantidade:=aItem[2]
+         ::oMySQL:Execute("UPDATE produtos SET estoque=estoque+"+ValToSQL(nQuantidade)+" WHERE id="+ValToSQL(nProdutoID))
+      next
+
+      ::oMySQL:CommitTrans()
       ::oSQLQueryPedidos:Refresh()
 
     catch oErro

@@ -87,7 +87,7 @@ METHOD CreateForm( lCreate ) CLASS TFrmPrincipal
    END
 
          WITH OBJECT ::oExplorerBarProdutos := TExplorerBar():New( ::oPageProdutos )
-            :SetBounds( 0, 0, 200, 545 )
+            :SetBounds( 0, 0, 200, 547 )
             :AddItem( "Opções" )
             :Create()
          END
@@ -124,7 +124,7 @@ METHOD CreateForm( lCreate ) CLASS TFrmPrincipal
             END
 
          WITH OBJECT ::oBrowseProdutos := TDBBrowse():New( ::oPageProdutos )
-            :SetBounds( 200, 0, 770, 545 )
+            :SetBounds( 200, 0, 770, 547 )
             :nAlign := alCLIENT
             WITH OBJECT TDBBrwColumn():New( ::oBrowseProdutos )
                :cHeader := "Código"

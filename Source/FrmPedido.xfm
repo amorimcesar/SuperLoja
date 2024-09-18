@@ -1,8 +1,8 @@
 METHOD CreateForm( lCreate ) CLASS TFrmPedido
 
    IF lCreate
-      ::SetBounds( 739, 461, 442, 157 )
-      ::SetClientSize( 426, 118 )
+      ::SetBounds( 737, 307, 442, 406 )
+      ::SetClientSize( 426, 367 )
       ::cText := "Novo pedido"
       ::oFont := TFont():Create( "MS Sans Serif", 8, 0, 400 )
       ::nBorderStyle := bsSINGLE
@@ -16,8 +16,16 @@ METHOD CreateForm( lCreate ) CLASS TFrmPedido
    ENDIF
    ::Super:CreateForm( .F. )
 
+   WITH OBJECT ::oLabelId := TLabel():New( Self )
+      :SetBounds( 8, 12, 38, 20 )
+      :cText := "Número"
+      :nVAlignment := vaCENTER
+      :lAutoSize := .F.
+      :Create()
+   END
+
    WITH OBJECT ::oEditId := TEdit():New( Self )
-      :SetBounds( 56, 12, 74, 20 )
+      :SetBounds( 48, 12, 74, 20 )
       :lEnabled := .F.
       :Value := ""
       :nAlignment := taRIGHT
@@ -39,7 +47,7 @@ METHOD CreateForm( lCreate ) CLASS TFrmPedido
    END
 
    WITH OBJECT ::oLabelCancelado := TLabel():New( Self )
-      :SetBounds( 364, 12, 52, 20 )
+      :SetBounds( 360, 12, 54, 20 )
       :cText := "Cancelado"
       :nClrText := clRed
       :lVisible := .F.
@@ -49,7 +57,7 @@ METHOD CreateForm( lCreate ) CLASS TFrmPedido
    END
 
    WITH OBJECT ::oLabelCliente := TLabel():New( Self )
-      :SetBounds( 16, 40, 38, 21 )
+      :SetBounds( 8, 40, 38, 21 )
       :cText := "Cliente:"
       :nVAlignment := vaCENTER
       :lAutoSize := .F.
@@ -57,25 +65,68 @@ METHOD CreateForm( lCreate ) CLASS TFrmPedido
    END
 
    WITH OBJECT ::oComboboxCliente := TCombobox():New( Self )
-      :SetBounds( 56, 40, 358, 21 )
+      :SetBounds( 48, 40, 370, 21 )
       :nStyle := csDROPDOWNLIST
       :OnCreate := "ComboboxClienteCreate"
       :Create()
    END
 
-   WITH OBJECT ::oBtnConfirmar := TBtnBmp():New( Self )
-      :SetBounds( 328, 76, 90, 30 )
-      :cText := "Confirmar"
-      :oBitmaps := "confirmar"
-      :OnClick := "BtnConfirmarClick"
+   WITH OBJECT ::oBtnNovoItem := TBtnBmp():New( Self )
+      :SetBounds( 300, 68, 38, 34 )
+      :oBitmaps := "incluir"
+      :OnClick := "BtnNovoItemClick"
       :Create()
    END
 
-   WITH OBJECT ::oLabelId := TLabel():New( Self )
-      :SetBounds( 16, 12, 38, 21 )
-      :cText := "Número"
-      :nVAlignment := vaCENTER
-      :lAutoSize := .F.
+   WITH OBJECT ::oBtnAlterarItem := TBtnBmp():New( Self )
+      :SetBounds( 340, 68, 38, 34 )
+      :oBitmaps := "alterar"
+      :OnClick := "BtnAlterarItemClick"
+      :Create()
+   END
+
+   WITH OBJECT ::oBtnExcluirItem := TBtnBmp():New( Self )
+      :SetBounds( 380, 68, 38, 34 )
+      :oBitmaps := "excluir"
+      :OnClick := "BtnExcluirItemClick"
+      :Create()
+   END
+
+   WITH OBJECT ::oBrowseItens := TArrayBrowse():New( Self )
+      :SetBounds( 8, 108, 410, 218 )
+      WITH OBJECT TArrayBrwColumn():New( ::oBrowseItens )
+         :cHeader := "Produto"
+         :nAlignment := taLEFTHEADERCENTER
+         :nWidth := 280
+         :nEditType := beLISTBOX
+         :OnCreate := "BrowseItensColumnProdutoCreate"
+         :Create()
+      END
+
+      WITH OBJECT TArrayBrwColumn():New( ::oBrowseItens )
+         :cHeader := "Quantidade"
+         :cPicture := "@E 999,999.999"
+         :nAlignment := taRIGHTHEADERCENTER
+         :nWidth := 84
+         :nEditType := beGET
+         :uDefaultValue := 1
+         :Create()
+      END
+
+      TBrwRecSel():Create( ::oBrowseItens )
+
+      :lAllowAppend := .T.
+      :lAllowInsert := .T.
+      :lAllowDelete := .T.
+      :lAutoSave := .T.
+      :Create()
+   END
+
+   WITH OBJECT ::oBtnConfirmar := TBtnBmp():New( Self )
+      :SetBounds( 328, 332, 90, 30 )
+      :cText := "Confirmar"
+      :oBitmaps := "confirmar"
+      :OnClick := "BtnConfirmarClick"
       :Create()
    END
 

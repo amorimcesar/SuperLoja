@@ -1,12 +1,14 @@
 METHOD CreateForm( lCreate ) CLASS TFrmCliente
 
    IF lCreate
-      ::SetBounds( 544, 265, 357, 172 )
+      ::SetBounds( 1101, 634, 357, 172 )
       ::SetClientSize( 341, 133 )
       ::cText := "Novo cliente"
       ::oFont := TFont():Create( "MS Sans Serif", 8, 0, 400 )
+      ::nBorderStyle := bsSINGLE
       ::lParentIcon := .F.
       ::oIcon := "loja"
+      ::lCentered := .T.
       ::lMinimizeBox := .F.
       ::lMaximizeBox := .F.
       ::OnInitialize := "FormInitialize"
@@ -49,7 +51,7 @@ METHOD CreateForm( lCreate ) CLASS TFrmCliente
    WITH OBJECT ::oBtnConfirmar := TBtnBmp():New( Self )
       :SetBounds( 236, 84, 90, 30 )
       :cText := "Confirmar"
-      :oBitmaps := "cofirmar"
+      :oBitmaps := "confirmar"
       :OnClick := "BtnConfirmarClick"
       :Create()
    END

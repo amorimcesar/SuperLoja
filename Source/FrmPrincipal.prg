@@ -18,6 +18,16 @@ CLASS TFrmPrincipal FROM TForm
    COMPONENT oBrowseClientes
    COMPONENT oSQLQueryClientes
 
+   COMPONENT oPagePedidos
+   COMPONENT oExplorerBarPedidos
+   COMPONENT oOptionListPedidos
+   COMPONENT oBevelFooter
+   COMPONENT oBevelBrowse
+   COMPONENT oBrowsePedidos
+   COMPONENT oImageLegendaCancelado
+   COMPONENT oLabelLegendaCancelado
+   COMPONENT oSQLQueryPedidos
+
    COMPONENT oMySQL
 
    METHOD CreateForm()
@@ -36,9 +46,19 @@ CLASS TFrmPrincipal FROM TForm
    METHOD OptionNovoClienteClick( oSender )
    METHOD OptionAlterarClienteClick( oSender )
    METHOD OptionExcluirClienteClick( oSender )
-   METHOD FormKeyDown( oSender, nKey, nFlags )
    METHOD OptionFiltrarClienteClick( oSender )
    METHOD BrowseClientesDblClick( oSender, nKeys, nCol, nRow )
+   METHOD MenuPrincipalPedidosClick( oSender, oMenu )
+   METHOD SQLQueryPedidosCreate( oSender )
+   METHOD OptionNovoPedidoClick( oSender )
+   METHOD OptionVisualizarPedidoClick( oSender )
+   METHOD OptionCancelarPedidoClick( oSender )
+   METHOD ClienteTemPedido()
+   METHOD OptionFiltrarPedidoClick( oSender )
+   METHOD BrowsePedidosDblClick( oSender, nKeys, nCol, nRow )
+   METHOD BrowsePedidosDrawCell( oSender, @cText, @nClrText, @nClrPane, lHighLite, hDC, aRect )
+   METHOD BrowseClientesKeyDown( oSender, nKey, nFlags )
+   METHOD BrowsePedidosKeyDown( oSender, nKey, nFlags )
 
 ENDCLASS
 
@@ -220,32 +240,48 @@ RETURN Nil
 
 //------------------------------------------------------------------------------
 
+METHOD ClienteTemPedido() CLASS TFrmPrincipal
+
+   LOCAL aPedidos:={}, lTemPedidos:=.F.
+
+   Application:oMainForm:oMySQL:Execute("SELECT NULL FROM pedidos WHERE cliente_id="+ValToSQL(::oSQLQueryClientes:id),,@aPedidos)
+
+   lTemPedidos:=Len(aPedidos)>0
+
+RETURN lTemPedidos
+
+//------------------------------------------------------------------------------
+
 METHOD OptionExcluirClienteClick( oSender ) CLASS TFrmPrincipal
 
    LOCAL oErro
 
    if ::oSQLQueryClientes:RecCount()==0
-      MessageBox(,"Não há cliente para excluir", "Atenção", MB_ICONWARNING)
+      MessageBox(,"Não há cliente para excluir.","Atenção",MB_ICONWARNING)
       RETURN Nil
    endif
 
-   if MessageBox(, "Deseja realmente excluir o cliente?","Atenção", MB_YESNO+MB_ICONWARNING)==IDNO
+   if ::ClienteTemPedido()
+      MessageBox(,"O cliente não pode ser excluído porque existe pedido para este cliente.","Atenção",MB_ICONWARNING)
+      RETURN Nil
+   endif
+
+   if MessageBox(,"Deseja realmente excluir o cliente?","Atenção",MB_YESNO+MB_ICONWARNING)==IDNO
       RETURN Nil
    endif
 
    try
       ::oSQLQueryClientes:Delete()
     catch oErro
-      ::oSQLQueryClientes:Cancel()
       Grava_Log_Erro(oErro)
-      MessageBox(,"Ocorreu um erro ao excluir o cliente.","Erro", MB_ICONERROR)
+      MessageBox(,"Ocorreu um erro ao excluir o cliente.","Erro",MB_ICONERROR)
    end
 
 RETURN Nil
 
 //------------------------------------------------------------------------------
 
-METHOD FormKeyDown( oSender, nKey, nFlags ) CLASS TFrmPrincipal
+METHOD BrowseClientesKeyDown( oSender, nKey, nFlags ) CLASS TFrmPrincipal
 
    if nKey==VK_INSERT
       ::OptionNovoClienteClick()
@@ -278,6 +314,148 @@ METHOD OptionFiltrarClienteClick( oSender ) CLASS TFrmPrincipal
    endif
 
 RETURN Nil
+
+
+//------------------------------------------------------------------------------
+METHOD MenuPrincipalPedidosClick( oSender, oMenu ) CLASS TFrmPrincipal
+
+   ::oPages:nIndex:=3
+   ::oBrowsePedidos:SetFocus()
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
+
+METHOD SQLQueryPedidosCreate( oSender ) CLASS TFrmPrincipal
+
+   ::oSQLQueryPedidos:lOpen  :=.F.
+   ::oSQLQueryPedidos:cSelect:="SELECT p.id, p.data, c.nome, p.cancelado FROM pedidos p LEFT JOIN clientes c ON p.cliente_id=c.id ORDER BY p.data DESC, p.id DESC"
+   ::oSQLQueryPedidos:lOpen  :=.T.
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
+
+METHOD OptionNovoPedidoClick( oSender ) CLASS TFrmPrincipal
+
+   with object TFrmPedido()
+      :New()
+      :cText:="Novo pedido"
+      :ShowModal()
+   end
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
+
+METHOD OptionVisualizarPedidoClick( oSender ) CLASS TFrmPrincipal
+
+   if ::oSQLQueryPedidos:RecCount()==0
+      MessageBox(,"Não há pedido para visualizar.","Atenção",MB_ICONWARNING)
+      RETURN Nil
+   endif
+
+   with object TFrmPedido()
+      :New()
+
+      :cText:="Visualizar pedido"
+
+      :oEditId:Value         :=::oSQLQueryPedidos:id
+      :oEditData:Value       :=::oSQLQueryPedidos:data
+      :oComboboxCliente:cText:=::oSQLQueryPedidos:nome
+
+      :oEditData:lEnabled       :=.F.
+      :oComboboxCliente:lEnabled:=.F.
+
+      :oLabelCancelado:lVisible:=::oSQLQueryPedidos:cancelado
+      :oBtnConfirmar:lVisible  :=.F.
+
+      :ShowModal()
+   end
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
+
+METHOD OptionCancelarPedidoClick( oSender ) CLASS TFrmPrincipal
+
+   LOCAL oErro
+
+   if ::oSQLQueryPedidos:RecCount()==0
+      MessageBox(,"Não há pedido para cancelar.","Atenção",MB_ICONWARNING)
+      RETURN Nil
+   endif
+
+   if ::oSQLQueryPedidos:cancelado
+      MessageBox(,"O pedido já está cancelado.","Atenção",MB_ICONWARNING)
+      RETURN Nil
+   endif
+
+   if MessageBox(,"Deseja realmente cancelar esse pedido?","Atenção",MB_YESNO+MB_ICONWARNING)==IDNO
+      RETURN Nil
+   endif
+
+   try
+      ::oMySQL:BeginTrans()
+      ::oMySQL:Execute("UPDATE pedidos SET cancelado=1 WHERE id="+ValToSQL(::oSQLQueryPedidos:id))
+      ::oMySQL:CommitTrans()
+
+      ::oSQLQueryPedidos:Refresh()
+
+    catch oErro
+      ::oMySQL:RollBackTrans()
+      Grava_Log_Erro(oErro)
+      MessageBox(,"Ocorreu um erro ao cancelar o pedido.","Erro",MB_ICONERROR)
+   end
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
+
+METHOD OptionFiltrarPedidoClick( oSender ) CLASS TFrmPrincipal
+
+   if ::oBrowsePedidos:lFilterBar
+      ::oBrowseClientes:lFilterBar:=.F.
+      oSender:cText:="Ativar filtro"
+    else
+      ::oBrowsePedidos:lFilterBar:=.T.
+      oSender:cText:="Desativar filtro"
+   endif
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
+
+METHOD BrowsePedidosDblClick( oSender, nKeys, nCol, nRow ) CLASS TFrmPrincipal
+
+ ::OptionVisualizarPedidoClick()
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
+
+METHOD BrowsePedidosDrawCell( oSender, cText, nClrText, nClrPane, lHighLite, hDC, aRect ) CLASS TFrmPrincipal
+
+   if ::oSQLQueryPedidos:cancelado
+      nClrText:=clRed
+   endif
+
+RETURN Nil
+
+
+METHOD BrowsePedidosKeyDown( oSender, nKey, nFlags ) CLASS TFrmPrincipal
+
+if nKey==VK_INSERT
+      ::OptionNovoPedidoClick()
+    elseif nKey==VK_RETURN
+      ::OptionVisualizarPedidoClick()
+    elseif nKey==VK_DELETE
+      ::OptionCancelarPedidoClick()
+   endif
+
+RETURN Nil
+
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 

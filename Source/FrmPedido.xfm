@@ -1,0 +1,82 @@
+METHOD CreateForm( lCreate ) CLASS TFrmPedido
+
+   IF lCreate
+      ::SetBounds( 739, 461, 442, 157 )
+      ::SetClientSize( 426, 118 )
+      ::cText := "Novo pedido"
+      ::oFont := TFont():Create( "MS Sans Serif", 8, 0, 400 )
+      ::nBorderStyle := bsSINGLE
+      ::lParentIcon := .F.
+      ::oIcon := "loja"
+      ::lCentered := .T.
+      ::lMinimizeBox := .F.
+      ::lMaximizeBox := .F.
+      ::OnKeyDown := "FormKeyDown"
+      ::Create()
+   ENDIF
+   ::Super:CreateForm( .F. )
+
+   WITH OBJECT ::oEditId := TEdit():New( Self )
+      :SetBounds( 56, 12, 74, 20 )
+      :lEnabled := .F.
+      :Value := ""
+      :nAlignment := taRIGHT
+      :Create()
+   END
+
+   WITH OBJECT ::oLabelData := TLabel():New( Self )
+      :SetBounds( 144, 12, 27, 20 )
+      :cText := "Data:"
+      :nVAlignment := vaCENTER
+      :lAutoSize := .F.
+      :Create()
+   END
+
+   WITH OBJECT ::oEditData := TDateEdit():New( Self )
+      :SetBounds( 172, 12, 82, 20 )
+      :Value := Date()
+      :Create()
+   END
+
+   WITH OBJECT ::oLabelCancelado := TLabel():New( Self )
+      :SetBounds( 364, 12, 52, 20 )
+      :cText := "Cancelado"
+      :nClrText := clRed
+      :lVisible := .F.
+      :nVAlignment := vaCENTER
+      :lAutoSize := .F.
+      :Create()
+   END
+
+   WITH OBJECT ::oLabelCliente := TLabel():New( Self )
+      :SetBounds( 16, 40, 38, 21 )
+      :cText := "Cliente:"
+      :nVAlignment := vaCENTER
+      :lAutoSize := .F.
+      :Create()
+   END
+
+   WITH OBJECT ::oComboboxCliente := TCombobox():New( Self )
+      :SetBounds( 56, 40, 358, 21 )
+      :nStyle := csDROPDOWNLIST
+      :OnCreate := "ComboboxClienteCreate"
+      :Create()
+   END
+
+   WITH OBJECT ::oBtnConfirmar := TBtnBmp():New( Self )
+      :SetBounds( 328, 76, 90, 30 )
+      :cText := "Confirmar"
+      :oBitmaps := "confirmar"
+      :OnClick := "BtnConfirmarClick"
+      :Create()
+   END
+
+   WITH OBJECT ::oLabelId := TLabel():New( Self )
+      :SetBounds( 16, 12, 38, 21 )
+      :cText := "Número"
+      :nVAlignment := vaCENTER
+      :lAutoSize := .F.
+      :Create()
+   END
+
+RETURN Self

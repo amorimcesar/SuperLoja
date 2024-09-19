@@ -332,7 +332,7 @@ RETURN Nil
 METHOD SQLQueryPedidosCreate( oSender ) CLASS TFrmPrincipal
 
    ::oSQLQueryPedidos:lOpen  :=.F.
-   ::oSQLQueryPedidos:cSelect:="SELECT p.id, p.data, c.nome, p.cancelado FROM pedidos p LEFT JOIN clientes c ON p.cliente_id=c.id ORDER BY p.data DESC, p.id DESC"
+   ::oSQLQueryPedidos:cSelect:="SELECT p.id, p.data, p.cliente_id, c.nome, p.cancelado FROM pedidos p LEFT JOIN clientes c ON p.cliente_id=c.id ORDER BY p.data DESC, p.id DESC"
    ::oSQLQueryPedidos:lOpen  :=.T.
 
 RETURN Nil
@@ -365,7 +365,7 @@ METHOD OptionVisualizarPedidoClick( oSender ) CLASS TFrmPrincipal
 
       :oEditId:Value         :=::oSQLQueryPedidos:id
       :oEditData:Value       :=::oSQLQueryPedidos:data
-      :oComboboxCliente:cText:=::oSQLQueryPedidos:nome
+      :oComboboxCliente:cText:=AllTrim(Str(::oSQLQueryPedidos:cliente_id))+' - '+::oSQLQueryPedidos:nome
 
       :oEditData:lEnabled       :=.F.
       :oComboboxCliente:lEnabled:=.F.

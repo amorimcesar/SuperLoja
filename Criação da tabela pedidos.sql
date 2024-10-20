@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS pedidos(
+	id INT NOT NULL AUTO_INCREMENT,
+	data DATE NOT NULL DEFAULT '0001-01-01', 
+	cliente_id INT NOT NULL,
+	cancelado TINYINT NOT NULL DEFAULT 0,
+	CONSTRAINT cp_pedidos PRIMARY KEY (id),
+	CONSTRAINT ce_pedidos__cliente_id FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
